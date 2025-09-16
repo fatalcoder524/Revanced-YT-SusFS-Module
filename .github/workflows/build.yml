@@ -42,7 +42,7 @@ jobs:
         run: |
           mkdir  -p ./module/base/
           mv ./com.google.android.youtube.apk ./module/base/
-          sed -i 's/PATCHED_YT_VERSION=".*"/PATCHED_YT_VERSION="${{ ${{ env.YT_VERSION }} }}"/' ./module/customize.sh
+          sed -i 's/PATCHED_YT_VERSION=".*"/PATCHED_YT_VERSION="${{ env.YT_VERSION }}"/' ./module/customize.sh
 
       - name: Generate Patched Youtube APK
         run: |
