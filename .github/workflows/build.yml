@@ -117,7 +117,9 @@ jobs:
             # Disable rolling number animations
             --ei 194
             # Hide Shorts components
-            --ei 195 -OhideShortsAppShortcut=true -OhideShortsWidget= true
+            --ei 195
+            -OhideShortsAppShortcut=true
+            -OhideShortsWidget= true
             # Disable sign in to TV popup
             --ei 196
             # Hide timestamp
