@@ -42,17 +42,17 @@ jobs:
           mv ./com.google.android.youtube.apk ./module/base/
 
       - name: Generate Patched Youtube APK
-        working-directory: ./module/apk
         run: |
-          patch_file=../../*.rvp
-          rvx_cli=../../*.jar
-          base_apk=../base/*.apk
+          tree .
+          patch_file=*.rvp
+          rvx_cli=*.jar
+          base_apk=/module/base/*.apk
           if [ ! -f "$patch_file" ]; then
             echo "Error: No .rvp patch file found./" >&2
             exit 1
           fi
           echo "Using patch file: $patch_file"
-          java -jar "$rvx_cli" patch -p "$patch_file" -o . -t "../../temp" --purge --signer ${{ env.REPO_OWNER }} "$base_apk"
+          java -jar "$rvx_cli" patch -p "$patch_file" -o /module/base/apk -t "temp" --purge --signer ${{ env.REPO_OWNER }} "$base_apk"
 
       - name: Create module zip
         working-directory: ./module
