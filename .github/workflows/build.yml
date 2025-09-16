@@ -1,0 +1,65 @@
+name: Build Module
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        type: number
+        description: 'Major version increment by? (e.g. 1)'
+        default: 0
+        required: true
+      minor:
+        type: number
+        description: 'Minor version increment by? (e.g. 1)'
+        default: 1
+        required: true
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - uses: Yakov5776/gh-apkmirror-dl@v1.3
+        with:
+          org: 'google-inc'
+          repo: 'youtube'
+          version: '20.13.41'
+          bundle: false
+          filename: 'com.google.android.youtube.apk'
+
+      - name: Move APK to module/base
+        run: |
+          mv ./com.google.android.youtube.apk ./module/base/
+
+      - name: Generate Patched Youtube APK
+        working-directory: ./module/apk
+        run: |
+          patch_file=../../*.rvp
+          rvx_cli=../../*.jar
+          base_apk=../base/*.apk
+          if [ ! -f "$patch_file" ]; then
+            echo "Error: No .rvp patch file found./" >&2
+            exit 1
+          fi
+          echo "Using patch file: $patch_file"
+          java -jar "$rvx_cli" patch -p "$patch_file" -o . -t "../../temp" --purge --signer ${{ env.REPO_OWNER }} "$base_apk"
+
+      - name: Create module zip
+        working-directory: ./module
+        run: |
+          MODULE_NAME="Revanced-YT-For-SUSFS"
+          zip -r "../$MODULE_NAME.zip" . -x "*.git*" -x ".github/*" -x "*.yml" -x "README.md"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-zip
+          path: "*.zip"
