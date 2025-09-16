@@ -46,7 +46,7 @@ jobs:
           shopt -s nullglob
           patch_files=( *.rvp )
           rvx_cli=( *.jar )
-          base_apk=( /module/base/*.apk )
+          base_apk=( module/base/*.apk )
           
           if [ ${#patch_files[@]} -eq 0 ]; then
             echo "Error: No .rvp patch file found." >&2
