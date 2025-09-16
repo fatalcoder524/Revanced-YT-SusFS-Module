@@ -193,9 +193,7 @@ jobs:
           java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/system_neutral1_900" -OlightThemeBackgroundColor="@android:color/system_neutral1_50" -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
 
       - name: Create amoled module zip
-        working-directory: ./module
         run: |
-          tree .
           rm -f module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/
