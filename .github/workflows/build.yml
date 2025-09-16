@@ -196,7 +196,7 @@ jobs:
         run: |
           rm -rf module/apk
           mkdir -p module/apk
-          cp com.google.android.youtube_amoled.apk module/apk/
+          cp com.google.android.youtube_amoled.apk module/apk/com.google.android.youtube.apk
           MODULE_NAME="Revanced-YT-amoled-For-SUSFS"
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
@@ -210,7 +210,7 @@ jobs:
         run: |
           rm -rf module/apk
           mkdir -p module/apk
-          cp com.google.android.youtube_material.apk module/apk/
+          cp com.google.android.youtube_material.apk module/apk/com.google.android.youtube.apk
           MODULE_NAME="Revanced-material-YT-For-SUSFS"
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
