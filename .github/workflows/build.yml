@@ -66,7 +66,10 @@ jobs:
           apk_file="${base_apk[0]}"
           
           echo "Using patch file: $patch_file"
-          java -jar "$cli_jar" patch -p "$patch_file" -o "./module/base/apk" -t "./temp" --purge --signer ${{ env.REPO_OWNER }} "$apk_file"
+          echo "Using CLI JAR: $cli_jar"
+          echo "Using base APK: $apk_file"
+          echo "Signer: ${{ github.repository_owner }}"
+          java -jar "$cli_jar" patch -p "$patch_file" -o "./module/base/apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "$apk_file"
 
       - name: Create module zip
         working-directory: ./module
