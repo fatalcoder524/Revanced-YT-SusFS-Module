@@ -37,6 +37,7 @@ jobs:
 
       - name: Move APK to module/base
         run: |
+          tree .
           mv ./com.google.android.youtube.apk ./module/base/
 
       - name: Generate Patched Youtube APK
