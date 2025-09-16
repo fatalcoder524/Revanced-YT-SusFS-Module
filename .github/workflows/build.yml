@@ -38,7 +38,6 @@ jobs:
       - name: Move APK to module/base
         run: |
           mkdir  -p ./module/base/
-          mkdir  -p ./module/apk/
           mv ./com.google.android.youtube.apk ./module/base/
 
       - name: Generate Patched Youtube APK
@@ -153,13 +152,22 @@ jobs:
           )
           
           java -jar "$cli_jar" patch -p "$patch_file" --ei 209 -OdarkThemeBackgroundColor='@android:color/black' -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
-          java -jar "$cli_jar" patch -p "$patch_file" --ei 209 -OdarkThemeBackgroundColor='@android:color/system_neutral1_900' -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
+          java -jar "$cli_jar" patch -p "$patch_file" -o "com.google.android.youtube_default.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
 
-      - name: Create module zip
+      - name: Create amoled module zip
         working-directory: ./module
         run: |
-          MODULE_NAME="Revanced-YT-For-SUSFS"
-          zip -r "../$MODULE_NAME.zip" . -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
+          rm -rf module/apk
+          mkdir -p module/apk
+          MODULE_NAME="Revanced-YT-amoled-For-SUSFS"
+          zip -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
+
+      - name: Create default module zip
+        run: |
+          rm -rf module/apk
+          mkdir -p module/apk
+          MODULE_NAME="Revanced-default-YT-For-SUSFS"
+          zip -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
