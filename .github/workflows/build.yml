@@ -17,6 +17,9 @@ on:
 jobs:
   build-release:
     runs-on: ubuntu-latest
+    env:
+      REPO_OWNER: ${{ github.repository_owner }}
+      YT_VERSION: '20.13.41'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,7 +34,7 @@ jobs:
         with:
           org: 'google-inc'
           repo: 'youtube'
-          version: '20.13.41'
+          version: "${{ env.YT_VERSION }}"
           bundle: false
           filename: 'com.google.android.youtube.apk'
 
@@ -39,6 +42,7 @@ jobs:
         run: |
           mkdir  -p ./module/base/
           mv ./com.google.android.youtube.apk ./module/base/
+          sed -i 's/PATCHED_YT_VERSION=".*"/PATCHED_YT_VERSION="${{ ${{ env.YT_VERSION }} }}"/' ./module/customize.sh
 
       - name: Generate Patched Youtube APK
         run: |
@@ -189,21 +193,21 @@ jobs:
             "$apk_file"
           )
           
-          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/black" -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
-          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/system_neutral1_900" -OlightThemeBackgroundColor="@android:color/system_neutral1_50" -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
+          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/black" -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
+          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/system_neutral1_900" -OlightThemeBackgroundColor="@android:color/system_neutral1_50" -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
 
       - name: Create amoled module zip
         run: |
           rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/com.google.android.youtube.apk
-          MODULE_NAME="Revanced-YT-amoled-For-SUSFS"
+          MODULE_NAME="Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}"
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload amoled Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Revanced-YT-amoled-For-SUSFS
+          name: Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}
           path: "module/*"
 
       - name: Create material module zip
@@ -211,11 +215,41 @@ jobs:
           rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_material.apk module/apk/com.google.android.youtube.apk
-          MODULE_NAME="Revanced-material-YT-For-SUSFS"
+          MODULE_NAME="Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}"
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload material Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Revanced-material-YT-For-SUSFS
+          name: Revanced-material-YT-For-SUSFS-${{ env.YT_VERSION }}
+          path: "module/*"
+
+      - name: Create amoled module pre-installed zip
+        run: |
+          rm -rf module/apk
+          rm -rf module/base
+          mkdir -p module/apk
+          cp com.google.android.youtube_amoled.apk module/apk/com.google.android.youtube.apk
+          MODULE_NAME="Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}"
+          zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
+
+      - name: Upload amoled Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}
+          path: "module/*"
+
+      - name: Create material module pre-installed zip
+        run: |
+          rm -rf module/apk
+          rm -rf module/base
+          mkdir -p module/apk
+          cp com.google.android.youtube_material.apk module/apk/com.google.android.youtube.apk
+          MODULE_NAME="Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}"
+          zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
+
+      - name: Upload material Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Revanced-material-YT-For-SUSFS-preinstalled-${{ env.YT_VERSION }}
           path: "module/*"
