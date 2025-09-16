@@ -194,7 +194,7 @@ jobs:
 
       - name: Create amoled module zip
         run: |
-          rm -f module/apk
+          rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/
           MODULE_NAME="Revanced-YT-amoled-For-SUSFS"
@@ -208,7 +208,7 @@ jobs:
 
       - name: Create material module zip
         run: |
-          rm -f module/apk
+          rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_material.apk module/apk/
           MODULE_NAME="Revanced-material-YT-For-SUSFS"
