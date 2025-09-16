@@ -195,6 +195,7 @@ jobs:
       - name: Create amoled module zip
         working-directory: ./module
         run: |
+          tree .
           rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/
