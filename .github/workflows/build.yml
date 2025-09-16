@@ -43,16 +43,30 @@ jobs:
 
       - name: Generate Patched Youtube APK
         run: |
-          tree .
-          patch_file=*.rvp
-          rvx_cli=*.jar
-          base_apk=/module/base/*.apk
-          if [ ! -f "$patch_file" ]; then
-            echo "Error: No .rvp patch file found./" >&2
+          shopt -s nullglob
+          patch_files=( *.rvp )
+          rvx_cli=( *.jar )
+          base_apk=( /module/base/*.apk )
+          
+          if [ ${#patch_files[@]} -eq 0 ]; then
+            echo "Error: No .rvp patch file found." >&2
             exit 1
           fi
+          if [ ${#rvx_cli[@]} -eq 0 ]; then
+            echo "Error: No .jar CLI file found." >&2
+            exit 1
+          fi
+          if [ ${#base_apk[@]} -eq 0 ]; then
+            echo "Error: No base APK found in /module/base/." >&2
+            exit 1
+          fi
+          
+          patch_file="${patch_files[0]}"
+          cli_jar="${rvx_cli[0]}"
+          apk_file="${base_apk[0]}"
+          
           echo "Using patch file: $patch_file"
-          java -jar "$rvx_cli" patch -p "$patch_file" -o /module/base/apk -t "temp" --purge --signer ${{ env.REPO_OWNER }} "$base_apk"
+          java -jar "$cli_jar" patch -p "$patch_file" -o "./module/base/apk" -t "./temp" --purge --signer ${{ env.REPO_OWNER }} "$apk_file"
 
       - name: Create module zip
         working-directory: ./module
