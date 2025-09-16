@@ -151,7 +151,7 @@ jobs:
             "$apk_file"
           )
           
-          java -jar "$cli_jar" patch -p "$patch_file" --ei 209 -OdarkThemeBackgroundColor='@android:color/black' -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
+          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor='@android:color/black' -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
           java -jar "$cli_jar" patch -p "$patch_file" -o "com.google.android.youtube_default.apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "${args[@]}"
 
       - name: Create amoled module zip
