@@ -1,0 +1,108 @@
+name: Publish Release & Update update.json
+
+permissions:
+  contents: write
+  actions: write
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  update-release-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          path: release
+
+      - name: Fetch and checkout branch where tag was created
+        working-directory: release
+        run: |
+          git fetch --all --tags
+          TAG_COMMIT=$(git rev-list -n 1 ${{ github.event.release.tag_name }})
+          BRANCH=$(git branch -r --contains $TAG_COMMIT | grep -v '\->' | grep -v 'HEAD' | head -n1 | sed 's|origin/||' | xargs)
+          
+          if [ -z "$BRANCH" ]; then
+            echo "No branch found for tag commit. Falling back to 'main'."
+            BRANCH="main"
+          fi
+          
+          echo "Tag commit: $TAG_COMMIT"
+          echo "Detected branch: $BRANCH"
+          
+          git checkout $BRANCH
+          echo "checked_out_branch=$BRANCH" >> "$GITHUB_ENV"
+
+      - name: Get version info from module.prop
+        id: read_version
+        working-directory: release
+        run: |
+          cd ./module
+          VERSION=$(grep '^version=' module.prop | cut -d'=' -f2)
+          VERSION_CODE=$(grep '^versionCode=' module.prop | cut -d'=' -f2)
+          YT_VERSION=$(grep '^ytVersion=' module.prop | cut -d'=' -f2)
+
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+          echo "versionCode=$VERSION_CODE" >> "$GITHUB_ENV"
+          echo "ytVersion=$YT_VERSION" >> "$GITHUB_ENV"
+
+      - name: Save release body to changelog
+        working-directory: release
+        run: |
+          echo "${{ github.event.release.body }}" > CHANGELOG.md
+
+      - name: Checkout manifest branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.checked_out_branch }}
+          path: ${{ env.checked_out_branch }}
+
+      - name: Copy changelog to manifest branch
+        working-directory: ${{ env.checked_out_branch }}
+        run: |
+          cp ../release/CHANGELOG.md CHANGELOG.md
+
+      - name: Update update.json in Checked-out branch
+        working-directory: ${{ env.checked_out_branch }}
+        run: |
+          cat > update_amoled.json <<EOL
+          {
+            "version": "${{ env.version }}",
+            "versionCode": ${{ env.versionCode }},
+            "zipUrl": "https://github.com/${{ github.repository }}/releases/latest/download/Revanced-YT-amoled-For-SUSFS-${{ env.ytVersion }}-${{ env.versionCode }}.zip",
+            "changelog": "https://raw.githubusercontent.com/${{ github.repository }}/${{ env.checked_out_branch }}/CHANGELOG.md"
+          }
+          EOL
+          cat > update_material.json <<EOL
+          {
+            "version": "${{ env.version }}",
+            "versionCode": ${{ env.versionCode }},
+            "zipUrl": "https://github.com/${{ github.repository }}/releases/latest/download/Revanced-YT-material-For-SUSFS-${{ env.ytVersion }}-${{ env.versionCode }}.zip",
+            "changelog": "https://raw.githubusercontent.com/${{ github.repository }}/${{ env.checked_out_branch }}/CHANGELOG.md"
+          }
+          EOL
+          echo "Updated update_amoled.json:"
+          cat update_amoled.json
+          echo "Updated update_material.json:"
+          cat update_material.json
+
+      - name: Commit and push to Checked-out branch
+        working-directory: ${{ env.checked_out_branch }}
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add update_amoled.json update_material.json CHANGELOG.md
+          git commit -m "Update update.json and CHANGELOG.md for version ${{ env.version }}"
+          git push origin ${{ env.checked_out_branch }}
+
+      - name: Upload artifacts (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: |
+            ${{ env.checked_out_branch }}/CHANGELOG.md
+            ${{ env.checked_out_branch }}/update.json

@@ -1,0 +1,23 @@
+# Force all shell scripts to use LF (Unix line endings)
+*.sh	text eol=lf
+
+# Force all .prop files to use LF (critical for Magisk)
+*.prop	text eol=lf
+
+# Also apply to other common config/script files
+*.txt	text eol=lf
+*.xml	text eol=lf
+*.json	text eol=lf
+*.yaml	text eol=lf
+*.yml	text eol=lf
+
+# Avoid auto-crlf on binary files (don't touch these!)
+*.apk	binary
+*.zip	binary
+*.jar	binary
+*.so	binary
+*.png	binary
+*.jpg	binary
+*.jpeg	binary
+*.gif	binary
+*.ico	binary
