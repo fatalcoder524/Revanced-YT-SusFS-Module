@@ -196,7 +196,7 @@ jobs:
         working-directory: ./module
         run: |
           tree .
-          rm -rf module/apk
+          rm -f module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/
           MODULE_NAME="Revanced-YT-amoled-For-SUSFS"
@@ -210,7 +210,7 @@ jobs:
 
       - name: Create material module zip
         run: |
-          rm -rf module/apk
+          rm -f module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_material.apk module/apk/
           MODULE_NAME="Revanced-material-YT-For-SUSFS"
