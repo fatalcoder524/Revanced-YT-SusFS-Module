@@ -69,13 +69,52 @@ jobs:
           echo "Using CLI JAR: $cli_jar"
           echo "Using base APK: $apk_file"
           echo "Signer: ${{ github.repository_owner }}"
-          java -jar "$cli_jar" patch -p "$patch_file" -o "./module/base/apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" "$apk_file"
+          java -jar "$cli_jar" patch -p "$patch_file" -o "./module/apk" -t "./temp" --purge --signer "${{ github.repository_owner }}" \
+          # Hide ads
+          --ei 172 \
+          # Video ads
+          --ei 173 \
+          # Copy video URL
+          --ei 174 \
+          # Remove viewer discretion dialog
+          --ei 175 \
+          # Disable double tap actions
+          --ei 176 \
+          # Downloads
+          --ei 177 \
+          # Seekbar
+          --ei 178 \
+          # Swipe controls
+          --ei 179 \
+          # Disable auto captions
+          --ei 180 \
+          # Custom branding
+          --ei 181 \
+          # Change header
+          --ei 182 \
+          # Hide video action buttons
+          --ei 183 \
+          # Navigation buttons
+          --ei 184 \
+          # Hide player overlay buttons
+          --ei 185 \
+          # Change form factor
+          --ei 186 \
+          # Hide end screen cards
+          --ei 187 \
+          # Hide end screen suggested video
+          --ei 188 \
+          # Disable fullscreen ambient mode
+          --ei 189 \
+          # Hide layout components
+          --ei 190 \
+          "$apk_file"
 
       - name: Create module zip
         working-directory: ./module
         run: |
           MODULE_NAME="Revanced-YT-For-SUSFS"
-          zip -r "../$MODULE_NAME.zip" . -x "*.git*" -x ".github/*" -x "*.yml" -x "README.md"
+          zip -r "../$MODULE_NAME.zip" . -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
