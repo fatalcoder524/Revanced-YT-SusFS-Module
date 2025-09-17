@@ -13,6 +13,11 @@ on:
         description: 'Minor version increment by? (e.g. 1)'
         default: 1
         required: true
+      create_draft_release:
+        type: boolean
+        description: 'Create Draft release'
+        default: false
+        required: true
 
 jobs:
   build-release:
@@ -196,19 +201,53 @@ jobs:
           java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/black" -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
           java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/system_neutral1_900" -OlightThemeBackgroundColor="@android:color/system_neutral1_50" -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
 
+      - name: Read current module.prop
+        id: read_version
+        run: |
+          cd ./module
+          VERSION=$(grep '^version=' module.prop | cut -d'=' -f2)
+          VERSION_CODE=$(grep '^versionCode=' module.prop | cut -d'=' -f2)
+          
+          MAJOR="${{ github.event.inputs.major }}"
+          MINOR="${{ github.event.inputs.minor }}"
+          
+          IFS='.' read -r CURRENT_MAJOR CURRENT_MINOR <<< "$VERSION"
+          NEW_MAJOR=$((CURRENT_MAJOR + MAJOR))
+          if [ "$MAJOR" -gt 0 ]; then
+              NEW_MINOR="$MINOR"
+          else
+              NEW_MINOR=$((CURRENT_MINOR + MINOR))
+          fi
+          NEW_VERSION="$NEW_MAJOR.$NEW_MINOR"
+          NEW_VERSIONCODE=$((VERSION_CODE + 1))
+          
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_ENV"
+          echo "new_versioncode=$NEW_VERSIONCODE" >> "$GITHUB_ENV"
+
+      - name: Update module.prop
+        run: |
+          cd ./module
+          sed -i "s/^version=.*/version=${{ env.new_version }}/" module.prop
+          sed -i "s/^versionCode=.*/versionCode=${{ env.new_versioncode }}/" module.prop
+          sed -i "s/^ytVersion=.*/ytVersion=${{ env.YT_VERSION }}/" module.prop
+          cat module.prop
+
       - name: Create amoled module zip
         run: |
           rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/com.google.android.youtube.apk
-          MODULE_NAME="Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}"
+          MODULE_NAME="Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}"
+          # Update the updateJson URL inside module.prop
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          sed -i "s|^updateJson=.*|updateJson=https://raw.githubusercontent.com/${{ github.repository }}/${BRANCH_NAME}/update_amoled.json|g" module.prop
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload amoled Artifact
         uses: actions/upload-artifact@v4
         with:
           compression-level: 9
-          name: Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}
+          name: Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}
           path: "module/*"
 
       - name: Create material module zip
@@ -216,14 +255,17 @@ jobs:
           rm -rf module/apk
           mkdir -p module/apk
           cp com.google.android.youtube_material.apk module/apk/com.google.android.youtube.apk
-          MODULE_NAME="Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}"
+          MODULE_NAME="Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}"
+          # Update the updateJson URL inside module.prop
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          sed -i "s|^updateJson=.*|updateJson=https://raw.githubusercontent.com/${{ github.repository }}/${BRANCH_NAME}/update_material.json|g" module.prop
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload material Artifact
         uses: actions/upload-artifact@v4
         with:
           compression-level: 9
-          name: Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}
+          name: Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}
           path: "module/*"
 
       - name: Create amoled module pre-installed zip
@@ -232,14 +274,17 @@ jobs:
           rm -rf module/base
           mkdir -p module/apk
           cp com.google.android.youtube_amoled.apk module/apk/com.google.android.youtube.apk
-          MODULE_NAME="Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}"
+          MODULE_NAME="Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}"
+          # Update the updateJson URL inside module.prop
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          sed -i "s|^updateJson=.*|updateJson=https://raw.githubusercontent.com/${{ github.repository }}/${BRANCH_NAME}/update_amoled.json|g" module.prop
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload amoled Artifact
         uses: actions/upload-artifact@v4
         with:
           compression-level: 9
-          name: Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}
+          name: Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}
           path: "module/*"
 
       - name: Create material module pre-installed zip
@@ -248,12 +293,85 @@ jobs:
           rm -rf module/base
           mkdir -p module/apk
           cp com.google.android.youtube_material.apk module/apk/com.google.android.youtube.apk
-          MODULE_NAME="Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}"
+          MODULE_NAME="Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}"
+          # Update the updateJson URL inside module.prop
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          sed -i "s|^updateJson=.*|updateJson=https://raw.githubusercontent.com/${{ github.repository }}/${BRANCH_NAME}/update_material.json|g" module.prop
           zip -9 -r "$MODULE_NAME.zip" ./module/. -x "*.git*" -x ".github/*" -x "*.yml" -x "*apk.keystore*" -x "README.md"
 
       - name: Upload material Artifact
         uses: actions/upload-artifact@v4
         with:
           compression-level: 9
-          name: Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}
+          name: Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}
           path: "module/*"
+
+      - name: Commit updated module.prop
+        if: ${{ inputs.create_draft_release }}
+        run: |
+          cd ./module
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add module.prop
+          git commit -m "Bump version to ${{ env.new_version }} (${{ env.new_versioncode }})"
+          git push origin HEAD:${{ github.ref_name }}
+          
+          cd ..
+          git tag v${{ env.new_version }}
+          git push origin v${{ env.new_version }}
+
+      - name: Create Release
+        id: create_release
+        if: ${{ inputs.create_draft_release }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.new_version }}
+          release_name: ${{ env.new_version }}
+          draft: true
+          prerelease: ${{ github.ref == 'refs/heads/main' && 'false' || 'true' }}
+
+      - name: Upload Release Asset - Amoled
+        if: ${{ inputs.create_draft_release }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_name: Revanced-YT-amoled-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset - Material
+        if: ${{ inputs.create_draft_release }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_name: Revanced-YT-material-For-SUSFS-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset - Amoled Preinstalled
+        if: ${{ inputs.create_draft_release }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_name: Revanced-YT-amoled-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset - Material Preinstalled
+        if: ${{ inputs.create_draft_release }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_name: Revanced-YT-material-For-SUSFS-preinstalled-${{ env.YT_VERSION }}-${{ env.new_versioncode }}.zip
+          asset_content_type: application/zip
