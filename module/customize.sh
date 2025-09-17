@@ -1,9 +1,9 @@
 #!/system/bin/sh
 PATCHED_YT_VERSION="0.0.0"
-APK_MIRROR_URL="https://www.apkmirror.com/apk/google-inc/youtube/youtube-$(echo -n "$RVAPPVER" | tr "." "-")-release/"
+APK_MIRROR_URL="https://www.apkmirror.com/apk/google-inc/youtube/youtube-$(echo -n "$PATCHED_YT_VERSION" | tr "." "-")-release/"
 SUSFS_BIN=/data/adb/ksu/bin/ksu_susfs
 
-if [ -f "$MODPATH/base" ]; then
+if [ -d "$MODPATH/base" ]; then
 	# Forcefully Install unpatched apk
 	ui_print " [+] Installing of unpatched Youtube APK!"
 	pm install --force-sdk --full -g -i com.android.vending -r -d "$MODPATH/base/com.google.android.youtube.apk"
@@ -43,3 +43,4 @@ fi
 am force-stop "com.google.android.youtube"
 
 ui_print " [+] Install Successfull !!"
+ui_print " [+] Remember to umount app in KSU/KSUN/WildKSU/SukiSU or any other KSU fork Manager !!"
