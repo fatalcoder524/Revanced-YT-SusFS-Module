@@ -1,9 +1,9 @@
 id=revanced_yt_susfs
 name=Revanced Youtube for SusFS
-version=0.0
-versionCode=0
+version=1.0
+versionCode=1
 author=fatalcoder524
 description=Revanced Youtube specially built for SusFS
-ytVersion=0.0.0
-updateJson=
+ytVersion=20.13.41
+updateJson=https://raw.githubusercontent.com/fatalcoder524/Revanced-YT-SusFS-Module/main/update_material.json
 banner=
