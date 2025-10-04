@@ -1,6 +1,5 @@
 #!/system/bin/sh
 PATCHED_YT_VERSION="0.0.0"
-APK_MIRROR_URL="https://www.apkmirror.com/apk/google-inc/youtube/youtube-$(echo -n "$PATCHED_YT_VERSION" | tr "." "-")-release/"
 SUSFS_BIN=/data/adb/ksu/bin/ksu_susfs
 
 if [ -d "$MODPATH/base" ]; then
@@ -13,7 +12,7 @@ if [ -d "$MODPATH/base" ]; then
 	else
 		ui_print " [+] Installation of unpatched APK failed"
 		ui_print " [+] Likely Current installed version is higher than $PATCHED_YT_VERSION"
-		am start -a android.intent.action.VIEW -d "$APK_MIRROR_URL" &>/dev/null
+		ui_print " [+] Extract apk from base folder in zip and install it and retry!"
 		abort " [+] Aborting installation !!"
 	fi
 else
