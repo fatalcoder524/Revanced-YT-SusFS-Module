@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPO_OWNER: ${{ github.repository_owner }}
-      YT_VERSION: '20.13.41'
+      YT_VERSION: '20.14.43'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -85,126 +85,130 @@ jobs:
           
           args=(
             # Hide ads
-            --ei 172
-            # Video ads
-            --ei 173
-            # Copy video URL
-            --ei 174
-            # Remove viewer discretion dialog
-            --ei 175
-            # Disable double tap actions
-            --ei 176
-            # Downloads
-            --ei 177
-            # Seekbar
-            --ei 178
-            # Swipe controls
-            --ei 179
-            # Disable auto captions
-            --ei 180
-            # Custom branding
-            --ei 181
-            # Change header
-            --ei 182
-            # Hide video action buttons
             --ei 183
-            # Navigation buttons
+            # Video ads
             --ei 184
-            # Hide player overlay buttons
+            # Copy video URL
             --ei 185
-            # Change form factor
+            # Remove viewer discretion dialog
             --ei 186
-            # Hide end screen cards
+            # Disable double tap actions
             --ei 187
-            # Hide end screen suggested video
+            # Downloads
             --ei 188
-            # Disable fullscreen ambient mode
+            # Seekbar
             --ei 189
-            # Hide layout components
+            # Swipe controls
             --ei 190
-            # Hide info cards
+            # Disable auto captions
             --ei 191
-            # Hide player flyout menu items
+            # Custom branding
             --ei 192
-            # Hide related video overlay
+            -OappName=YouTube
+            -OiconPath=ReVanced*Logo
+            # Change header
             --ei 193
-            # Disable rolling number animations
+            # Hide video action buttons
             --ei 194
-            # Hide Shorts components
+            # Navigation buttons
             --ei 195
+            # Hide player overlay buttons
+            --ei 196
+            # Change form factor
+            --ei 197
+            # Hide end screen cards
+            --ei 198
+            # Hide end screen suggested video
+            --ei 199
+            # Disable fullscreen ambient mode
+            --ei 200
+            # Hide layout components
+            --ei 201
+            # Hide info cards
+            --ei 202
+            # Hide player flyout menu items
+            --ei 203
+            # Hide related video overlay
+            --ei 204
+            # Disable rolling number animations
+            --ei 205
+            # Hide Shorts components
+            --ei 206
             -OhideShortsAppShortcut=true
             -OhideShortsWidget=true
             # Disable sign in to TV popup
-            --ei 196
-            # Hide timestamp
-            --ei 197
-            # Miniplayer
-            --ei 198
-            # Disable player popup panels
-            --ei 199
-            # Exit fullscreen mode
-            --ei 200
-            # Open videos fullscreen
-            --ei 201
-            # Custom player overlay opacity
-            --ei 202
-            # Return YouTube Dislike
-            --ei 203
-            # Wide search bar
-            --ei 204
-            # Shorts autoplay
-            --ei 205
-            # Open Shorts in regular player
-            --ei 206
-            # SponsorBlock
             --ei 207
-            # Spoof app version
-            --ei 208
-            # Change start page
+            # Hide timestamp
+            --ei 108
+            # Miniplayer
             --ei 209
-            # Disable resuming Shorts on startup
+            # Disable player popup panels
             --ei 210
-            # Alternative thumbnails
+            # Exit fullscreen mode
+            --ei 211
+            # Open videos fullscreen
             --ei 212
-            # Bypass image region restrictions
+            # Custom player overlay opacity
             --ei 213
-            # Announcements
-            --di 214
-            # Always repeat
+            # Return YouTube Dislike
+            --ei 214
+            # Wide search bar
             --ei 215
-            # Remove background playback restrictions
+            # Shorts autoplay
             --ei 216
-            # Enable debugging
-            --di 217
-            # Spoof device dimensions
+            # Open Shorts in regular player
+            --ei 217
+            # SponsorBlock
             --ei 218
-            # Check watch history domain name resolution
+            # Spoof app version
             --ei 219
-            # GmsCore support
-            --di 220
-            # Disable haptic feedback
+            # Change start page
+            --ei 220
+            # Disable resuming Shorts on startup
             --ei 221
-            # Bypass URL redirects
-            --ei 222
-            # Open links externally
+            # Alternative thumbnails
             --ei 223
-            # Remove tracking query parameter
+            # Bypass image region restrictions
             --ei 224
-            # Spoof video streams
-            --ei 225
-            # Force original audio
+            # Announcements
+            --di 225
+            # Always repeat (removed)
+            # Remove background playback restrictions
             --ei 226
-            # Disable HDR video
-            --ei 227
-            # Video quality
+            # Enable debugging
+            --di 227
+            # Spoof device dimensions
             --ei 228
-            # Playback speed
+            # Check watch history domain name resolution
             --ei 229
+            # GmsCore support
+            --di 230
+            # Disable haptic feedback
+            --ei 231
+            # Bypass URL redirects
+            --ei 232
+            # Open links externally
+            --ei 233
+            # Loop video
+            --ei 234
+            # Sanitize sharing links
+            --ei 235
+            # Spoof video streams
+            --ei 236
+            # Force original audio
+            --ei 237
+            # Disable video codecs
+            --ei 238
+            # Disable HDR video (removed)
+            # Video quality
+            --ei 239
+            # Playback speed
+            --ei 240
             "$apk_file"
           )
           
-          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/black" -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
-          java -jar "$cli_jar" patch -p "$patch_file" --ei 211 -OdarkThemeBackgroundColor="@android:color/system_neutral1_900" -OlightThemeBackgroundColor="@android:color/system_neutral1_50" -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
+          java -jar "$cli_jar" patch -p "$patch_file" --ei 222 -OdarkThemeBackgroundColor="@android:color/black" -o "com.google.android.youtube_amoled.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
+          java -jar "$cli_jar" patch -p "$patch_file" --ei 222 -OdarkThemeBackgroundColor="@android:color/system_neutral1_900" -OlightThemeBackgroundColor="@android:color/system_neutral1_50" -o "com.google.android.youtube_material.apk" -t "./temp" --purge --signer "${{ env.REPO_OWNER }}" "${args[@]}"
 
       - name: Read current module.prop
         id: read_version
