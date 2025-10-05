@@ -1,3 +1,3 @@
-- Update YouTube to 20.14.43.
-- Try to fix custom branding icons.
-- Remove unwanted APK Mirror Intent.
+- Add sepolicy.rule to support SusFS properly. (Remember to umount Youtube app in KSU settings)
+- Add credits to required devs.
+- Update susfs hide script. Thanks to simonpunk.
