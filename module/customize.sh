@@ -32,13 +32,11 @@ mod_apk_path="${MODPATH}/apk/com.google.android.youtube.apk"
 stock_path="$(pm path com.google.android.youtube | sed -n '/base/s/package://p')"
 am force-stop "com.google.android.youtube"
 chcon u:object_r:apk_data_file:s0 "$mod_apk_path"
-"${SUSFS_BIN}" add_sus_kstat "${stock_path}"
 if [ -n "$stock_path" ]; then
   mount -o bind "$mod_apk_path" "$stock_path"
-  "${SUSFS_BIN}" update_sus_kstat "$stock_path"
   "${SUSFS_BIN}" add_sus_mount "$stock_path"
+  "${SUSFS_BIN}" add_try_umount "$stock_path" 1
 fi
-"${SUSFS_BIN}" add_sus_mount "${stock_path}"
 am force-stop "com.google.android.youtube"
 
 ui_print " [+] Install Successfull !!"
