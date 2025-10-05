@@ -1,0 +1,1 @@
+allow zygote apk_data_file dir {search}
